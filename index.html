@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Advanced Adverbs Grammar Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f2f2f2;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .question {
+            background: #fff;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .result {
+            background: #e6ffe6;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .history {
+            background: #e6f3ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background: #ddd;
+            cursor: pointer;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background: #4CAF50;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+        .save-buttons {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .save-btn {
+            background-color: #2196F3;
+            margin: 5px;
+        }
+        .save-btn:hover {
+            background-color: #0b7dda;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Advanced Adverbs Grammar Quiz</h2>
+
+<div class="tabs">
+    <div class="tab active" onclick="showTab('quiz')">做测验</div>
+    <div class="tab" onclick="showTab('history')">查看记录</div>
+</div>
+
+<div id="quiz" class="tab-content active">
+    <form id="quizForm">
+        <label>Name (名字):</label><br>
+        <input type="text" id="name" required><br><br>
+
+        <label>Branch (分院):</label><br>
+        <select id="branch" required>
+            <option value="">Select</option>
+            <option value="Pulai">Pulai</option>
+            <option value="Skudai">Skudai</option>
+        </select><br><br>
+
+        <label>Form (年级):</label><br>
+        <input type="text" id="form" required><br><br>
+
+        <div id="questions"></div>
+
+        <button type="button" onclick="submitQuiz()">提交答案</button>
+        <button type="button" onclick="saveProgress()">保存进度</button>
+        <button type="button" onclick="loadProgress()">加载进度</button>
+    </form>
+
+    <div id="result" class="result hidden"></div>
+</div>
+
+<div id="history" class="tab-content">
+    <h3>你的测验记录</h3>
+    <div id="historyList"></div>
+</div>
+
+<script>
+const questions = [
+    {
+        q: "She sings ___ in the choir.",
+        options: ["beautiful", "beautifully", "beauty", "beautify"],
+        answer: "beautifully",
+        explain: "这里需要副词修饰动词'sings'，'beautifully'是副词形式。",
+        encourage: "副词修饰动词的概念掌握得很好！记住形容词变副词通常加-ly哦~"
+    },
+    {
+        q: "He ran ___ to catch the bus.",
+        options: ["quick", "quickness", "quickly", "quickening"],
+        answer: "quickly",
+        explain: "这里需要副词修饰动词'ran'，'quickly'是副词形式。",
+        encourage: "速度副词用得对！你已经理解了副词的基本用法，真棒！"
+    },
+    {
+        q: "The baby slept ___ through the night.",
+        options: ["peaceful", "peacefully", "peace", "peacefulness"],
+        answer: "peacefully",
+        explain: "这里需要副词修饰动词'slept'，'peacefully'是副词形式。",
+        encourage: "状态副词选得准确！副词描述动作方式的概念你已经掌握啦！"
+    },
+    {
+        q: "She answered the question ___.",
+        options: ["correct", "correctly", "correction", "correctness"],
+        answer: "correctly",
+        explain: "这里需要副词修饰动词'answered'，'correctly'是副词形式。",
+        encourage: "正确性副词用得恰到好处！这个基本规则你已经记住啦！"
+    },
+    {
+        q: "He speaks English very ___.",
+        options: ["good", "well", "better", "best"],
+        answer: "well",
+        explain: "'well'是'good'的副词形式，修饰动词'speaks'。",
+        encourage: "特殊副词的用法完全正确！这种不规则变化你也记住了，真厉害！"
+    },
+    {
+        q: "They arrived ___ for the meeting.",
+        options: ["late", "lately", "later", "latest"],
+        answer: "late",
+        explain: "'late'本身既是形容词也是副词，这里修饰动词'arrived'。",
+        encourage: "同形副词用得对！这种特殊情况你也注意到了，观察力真强！"
+    },
+    {
+        q: "She looked at me ___ when I interrupted her.",
+        options: ["angry", "angrily", "anger", "angriness"],
+        answer: "angrily",
+        explain: "这里需要副词修饰动词'looked'，'angrily'是副词形式。",
+        encourage: "情感副词用得准确！你已经掌握了如何用副词表达方式啦！"
+    },
+    {
+        q: "The sun shone ___ in the clear sky.",
+        options: ["bright", "brightly", "brightness", "brighten"],
+        answer: "brightly",
+        explain: "这里需要副词修饰动词'shone'，'brightly'是副词形式。",
+        encourage: "自然现象的描述完全正确！副词使描写更生动的用法掌握得很好！"
+    },
+    {
+        q: "He works ___ than his brother.",
+        options: ["hard", "hardly", "harder", "hardest"],
+        answer: "harder",
+        explain: "这里需要副词的比较级形式，'hard'的比较级是'harder'。",
+        encourage: "比较级副词用得恰到好处！这个重要语法点你已经理解啦！"
+    },
+    {
+        q: "She danced ___ at the performance.",
+        options: ["graceful", "gracefully", "grace", "gracefulness"],
+        answer: "gracefully",
+        explain: "这里需要副词修饰动词'danced'，'gracefully'是副词形式。",
+        encourage: "艺术表现的副词描述完全正确！你的语感越来越好啦！"
+    },
+    {
+        q: "The children played ___ in the park.",
+        options: ["happy", "happily", "happiness", "happier"],
+        answer: "happily",
+        explain: "这里需要副词修饰动词'played'，'happily'是副词形式。",
+        encourage: "情感状态副词用得对！你已经掌握了副词表达情绪的方式！"
+    },
+    {
+        q: "He explained the problem ___.",
+        options: ["clear", "clearly", "clearness", "clearing"],
+        answer: "clearly",
+        explain: "这里需要副词修饰动词'explained'，'clearly'是副词形式。",
+        encourage: "清晰度副词选得准确！沟通相关的副词用法你已经掌握啦！"
+    },
+    {
+        q: "She ___ goes to the gym on weekends.",
+        options: ["usual", "usually", "usualness", "use"],
+        answer: "usually",
+        explain: "这里需要频率副词修饰整个句子，'usually'是副词形式。",
+        encourage: "频率副词用得恰到好处！这个重要语法概念你已经理解啦！"
+    },
+    {
+        q: "The car stopped ___ at the red light.",
+        options: ["sudden", "suddenly", "suddenness", "suddener"],
+        answer: "suddenly",
+        explain: "这里需要副词修饰动词'stopped'，'suddenly'是副词形式。",
+        encourage: "突发性副词用得对！描述意外动作的副词你已经掌握啦！"
+    },
+    {
+        q: "He speaks ___ when he's nervous.",
+        options: ["fast", "fastly", "faster", "fastest"],
+        answer: "fast",
+        explain: "'fast'本身既是形容词也是副词，这里修饰动词'speaks'。",
+        encourage: "同形副词的特殊情况完全正确！这种细节你也注意到了，真棒！"
+    },
+    {
+        q: "The team played ___ and won the match.",
+        options: ["good", "well", "better", "best"],
+        answer: "well",
+        explain: "'well'是'good'的副词形式，修饰动词'played'。",
+        encourage: "运动表现副词用得准确！这种不规则变化你也记住了，厉害！"
+    },
+    {
+        q: "She smiled ___ at the compliment.",
+        options: ["shy", "shyly", "shyness", "shyer"],
+        answer: "shyly",
+        explain: "这里需要副词修饰动词'smiled'，'shyly'是副词形式。",
+        encourage: "性格特征副词用得对！你已经掌握了如何用副词表达性格啦！"
+    },
+    {
+        q: "The rain fell ___ all day long.",
+        options: ["heavy", "heavily", "heaviness", "heavier"],
+        answer: "heavily",
+        explain: "这里需要副词修饰动词'fell'，'heavily'是副词形式。",
+        encourage: "天气现象的描述完全正确！自然现象的副词用法掌握得很好！"
+    },
+    {
+        q: "He solved the puzzle ___ than I did.",
+        options: ["easy", "easily", "easier", "easiest"],
+        answer: "easier",
+        explain: "这里需要副词的比较级形式，'easy'的比较级是'easier'。",
+        encourage: "比较级副词用得恰到好处！这个重要语法点你已经掌握啦！"
+    },
+    {
+        q: "The bird sang ___ in the morning.",
+        options: ["beautiful", "beautifully", "beauty", "beautify"],
+        answer: "beautifully",
+        explain: "这里需要副词修饰动词'sang'，'beautifully'是副词形式。",
+        encourage: "声音描述的副词用得准确！你的语言表达能力越来越强啦！"
+    }
+];
+
+function showTab(tabId) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Deactivate all tabs
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Show selected tab content
+    document.getElementById(tabId).classList.add('active');
+    
+    // Activate selected tab
+    event.currentTarget.classList.add('active');
+    
+    // If history tab is selected, load history
+    if (tabId === 'history') {
+        loadHistory();
+    }
+}
+
+function submitQuiz() {
+    const name = document.getElementById('name').value;
+    const branch = document.getElementById('branch').value;
+    const form = document.getElementById('form').value;
+    
+    if (!name || !branch || !form) {
+        alert("请填写完整的个人信息！");
+        return;
+    }
+    
+    let score = 0;
+    let results = [];
+    let unanswered = 0;
+    
+    questions.forEach((q, index) => {
+        const selected = document.querySelector(`input[name="q${index}"]:checked`);
+        const isCorrect = selected && selected.value === q.answer;
+        
+        if (isCorrect) score++;
+        if (!selected) unanswered++;
+        
+        results.push({
+            question: q.q,
+            selected: selected ? selected.value : "未作答",
+            correct: q.answer,
+            isCorrect: isCorrect,
+            explain: q.explain,
+            encourage: q.encourage
+        });
+    });
+    
+    // Save the attempt to history
+    saveAttempt(name, branch, form, score, results);
+    
+    // Display results
+    displayResults(name, branch, form, score, results, unanswered);
+}
+
+function displayResults(name, branch, form, score, results, unanswered) {
+    let output = `
+        <h3>名字: ${name}</h3>
+        <h3>分院: ${branch}</h3>
+        <h3>年级: ${form}</h3>
+        <h3>得分: <span class="${score >= 15 ? 'correct' : 'incorrect'}">${score} / 20</span></h3>
+        ${unanswered > 0 ? `<p>注意：你有 ${unanswered} 题没有作答</p>` : ''}
+        <p>${getFeedback(score)}</p>
+        <hr>
+    `;
+    
+    results.forEach((r, index) => {
+        output += `
+            <div class="question">
+                <p><strong>第${index + 1}题：${r.isCorrect ? '正确 ✅' : '错误 ❌'}</strong></p>
+                <p>题目: ${r.question}</p>
+                ${!r.isCorrect ? `<p>你的答案: <span class="incorrect">${r.selected}</span></p>` : ''}
+                <p>正确答案: <span class="correct">${r.correct}</span></p>
+                <p>解释: ${r.explain}</p>
+                <p>鼓励: ${r.encourage}</p>
+            </div>
+        `;
+    });
+    
+    document.getElementById('result').innerHTML = output;
+    document.getElementById('result').classList.remove('hidden');
+    
+    // Scroll to results
+    document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+}
+
+function getFeedback(score) {
+    if (score === 20) {
+        return "太厉害啦！全对耶！你的副词用得跟母语者一样棒！🎉 给自己点个赞吧！";
+    } else if (score >= 17) {
+        return "成绩很不错哦！只有几个小地方需要注意，你已经掌握大部分内容啦！✨";
+    } else if (score >= 14) {
+        return "挺好的！基本要点都掌握了，错题看看解释，下次会更好哒！😊";
+    } else if (score >= 10) {
+        return "有进步空间哦！错题都是学习机会，慢慢来，你会越来越棒的！💪";
+    } else {
+        return "第一次做这样的题吧？别担心！每个人都是这样进步的，多做几次就会好很多啦！🌱";
+    }
+}
+
+function saveAttempt(name, branch, form, score, results) {
+    const attempts = JSON.parse(localStorage.getItem('pronounQuizAttempts') || '[]');
+    const attempt = {
+        date: new Date().toLocaleString(),
+        name,
+        branch,
+        form,
+        score,
+        results
+    };
+    
+    attempts.unshift(attempt); // Add new attempt at beginning
+    localStorage.setItem('pronounQuizAttempts', JSON.stringify(attempts));
+}
+
+function loadHistory() {
+    const attempts = JSON.parse(localStorage.getItem('pronounQuizAttempts') || '[]');
+    const historyList = document.getElementById('historyList');
+    
+    if (attempts.length === 0) {
+        historyList.innerHTML = "<p>你还没有任何测验记录，快去做测验吧！</p>";
+        return;
+    }
+    
+    let html = "";
+    attempts.forEach((attempt, index) => {
+        html += `
+            <div class="question" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px;">
+                <h3>测验 #${index + 1} - ${attempt.date}</h3>
+                <p>姓名: ${attempt.name} | 分院: ${attempt.branch} | 年级: ${attempt.form}</p>
+                <p>得分: <strong>${attempt.score} / 20</strong></p>
+                <button onclick="viewAttemptDetails(${index})">查看详情</button>
+                <div id="attemptDetails${index}" style="display: none; margin-top: 10px;">
+                    ${attempt.results.map((r, qIndex) => `
+                        <div style="margin-bottom: 15px; padding: 10px; background: ${r.isCorrect ? '#e6ffe6' : '#ffe6e6'}; border-radius: 5px;">
+                            <p><strong>第${qIndex + 1}题：${r.isCorrect ? '正确 ✅' : '错误 ❌'}</strong></p>
+                            <p>题目: ${r.question}</p>
+                            ${!r.isCorrect ? `<p>你的答案: ${r.selected}</p>` : ''}
+                            <p>正确答案: ${r.correct}</p>
+                            <p>解释: ${r.explain}</p>
+                            <p>鼓励: ${r.encourage}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    });
+    
+    historyList.innerHTML = html;
+}
+
+function viewAttemptDetails(index) {
+    const detailsDiv = document.getElementById(`attemptDetails${index}`);
+    if (detailsDiv.style.display === 'none') {
+        detailsDiv.style.display = 'block';
+    } else {
+        detailsDiv.style.display = 'none';
+    }
+}
+
+function saveProgress() {
+    const name = document.getElementById('name').value;
+    const branch = document.getElementById('branch').value;
+    const form = document.getElementById('form').value;
+    
+    if (!name || !branch || !form) {
+        alert("请先填写个人信息！");
+        return;
+    }
+    
+    const progress = {
+        name,
+        branch,
+        form,
+        answers: []
+    };
+    
+    questions.forEach((q, index) => {
+        const selected = document.querySelector(`input[name="q${index}"]:checked`);
+        progress.answers.push(selected ? selected.value : null);
+    });
+    
+    localStorage.setItem('pronounQuizProgress', JSON.stringify(progress));
+    alert("进度已保存！你可以稍后回来继续完成测验。");
+}
+
+function loadProgress() {
+    const progress = JSON.parse(localStorage.getItem('pronounQuizProgress'));
+    
+    if (!progress) {
+        alert("没有找到保存的进度！");
+        return;
+    }
+    
+    document.getElementById('name').value = progress.name;
+    document.getElementById('branch').value = progress.branch;
+    document.getElementById('form').value = progress.form;
+    
+    progress.answers.forEach((answer, index) => {
+        if (answer) {
+            const radio = document.querySelector(`input[name="q${index}"][value="${answer}"]`);
+            if (radio) radio.checked = true;
+        }
+    });
+    
+    alert("进度已加载！你可以继续完成测验。");
+}
+
+window.onload = function() {
+    const qDiv = document.getElementById('questions');
+    questions.forEach((q, index) => {
+        const div = document.createElement('div');
+        div.className = "question";
+        div.innerHTML = `<p><strong>第${index + 1}题.</strong> ${q.q}</p>` +
+                        q.options.map(opt => `
+                            <label><input type="radio" name="q${index}" value="${opt}"> ${opt}</label><br>
+                        `).join('');
+        qDiv.appendChild(div);
+    });
+    
+    // Check if there's saved progress
+    if (localStorage.getItem('pronounQuizProgress')) {
+        if (confirm("检测到有保存的进度，是否加载？")) {
+            loadProgress();
+        }
+    }
+}
+</script>
+
+</body>
+</html>
